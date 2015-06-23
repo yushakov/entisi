@@ -5,11 +5,11 @@
 #include <memory.h>
 
 void test_tree();
-void test_callback(int key, int val, void *p);
+void test_callback(bis key, int val, void *p);
 
 int   read_isi(FILE *in, float **arr, float *sum, float *min);
 int   binarize(float *isi, int isi_len, int *bin, float dt);
-void  getHcallback(int key, int val, void *Haddr);
+void  getHcallback(bis key, int val, void *Haddr);
 double getG(int order); // holds G[] and manages its size
 
 #define GSIZE 1000000
@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
 	int   *bin;
 	int    bin_len;
 	int    MaxOrder = 500;
-
+	
 	printf("Input file %s has got the pointer: %d\n",  infile, (int)in);
 	printf("Output file %s has got the pointer: %d\n", outfile, (int)out);
 
@@ -81,12 +81,14 @@ int main(int argc, char *argv[])
 		int i = 0;
 		while (i + order < bin_len)
 		{
-			int word = 0;
+			bis word = (bis)0;
 			for (int j = 0; j < order; j++)
 			{
-				word = (word << 1) | bin[i + j];
+				//word = (word << 1) | (bool)bin[i + j];
+				word <<= 1;
+				word  |= bin[i + j];
 			}
-			tree->put(word, 1);
+			tree->put(word, 1, order);
 			N++;
 			i++;
 		}
@@ -182,7 +184,7 @@ int binarize(float *isi, int isi_len, int *bin, float dt)
 	return bin_idx;
 }
 
-void  getHcallback(int key, int val, void *p)
+void  getHcallback(bis key, int val, void *p)
 {
 	cbPar *par = (cbPar*)p;
 	//double *H = (double*)Haddr;
@@ -242,7 +244,7 @@ void test_tree()
 		}
 		int d = 0;
 		int k = atoi(s);
-		tree->put(k, 1);
+		tree->put(k, 1, 32);
 		tree->getDepth(d);
 		printf("Depth: %d\n", d);
 		printf("command>> ");
@@ -251,7 +253,7 @@ void test_tree()
 	delete tree;
 }
 
-void test_callback(int key, int val, void *p)
+void test_callback(bis key, int val, void *p)
 {
 	printf(" %d::%d ", key, val);
 }

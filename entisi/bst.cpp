@@ -14,16 +14,16 @@ BinarySearchTree::~BinarySearchTree()
 	delete[] nodes;
 }
 
-void BinarySearchTree::put(int key, int val)
+void BinarySearchTree::put(bis key, int val, int order)
 {
 	if (root)
 	{
-		root->ins(key, val, &nodes[node_idx], node_idx);
+		root->ins(key, val, order, &nodes[node_idx], node_idx);
 	}
 	else
 	{
 		root = &nodes[0];
-		root->ins(key, val, 0, node_idx);
+		root->ins(key, val, order, 0, node_idx);
 		node_idx++;
 	}
 	if (node_idx >= node_count)
@@ -42,7 +42,7 @@ void BinarySearchTree::put(int key, int val)
 	}
 }
 
-void BinarySearchTree::inorder(void(*callback_fun)(int _key, int _val, void*), void *p)
+void BinarySearchTree::inorder(void(*callback_fun)(bis _key, int _val, void*), void *p)
 {
 	if (root)
 	{
@@ -57,6 +57,24 @@ int BinarySearchTree::getDepth(int &dp)
 }
 
 //////////////////////////////////////////////////
+
+int compare(bis a, bis b, int order)
+{
+	if (a == b) return 0;
+	else
+	{
+#ifdef BITSET_SIZE
+		for (int i = order-1; i >= 0; i--)
+		{
+			if      ( a[i] && !b[i]) return  1; // a > b
+			else if (!a[i] &&  b[i]) return -1; // a < b
+		}
+#else
+		if (a > b) return 1;
+		if (a < b) return -1;
+#endif
+	}
+}
 
 TreeNode::TreeNode()
 {
@@ -74,7 +92,7 @@ TreeNode::~TreeNode()
 	right =  0;
 }
 
-void TreeNode::ins(int _key, int _val, TreeNode *p, int &idx)
+void TreeNode::ins(bis _key, int _val, int _order, TreeNode *p, int &idx)
 {
 	if (!p)
 	{
@@ -82,15 +100,17 @@ void TreeNode::ins(int _key, int _val, TreeNode *p, int &idx)
 		val = _val;
 		return;
 	}
-	if (key == _key)
+	switch (compare(_key, key, _order)){
+	case 0:
 	{
-		val+= _val;
+		val += _val;
 	}
-	else if (_key < key)
+	break;
+	case -1:
 	{
 		if (left)
 		{
-			left->ins(_key, _val, p, idx);
+			left->ins(_key, _val, _order, p, idx);
 		}
 		else
 		{
@@ -100,11 +120,12 @@ void TreeNode::ins(int _key, int _val, TreeNode *p, int &idx)
 			left->val = _val;
 		}
 	}
-	else if (_key > key)
+	break;
+	case 1:
 	{
 		if (right)
 		{
-			right->ins(_key, _val, p, idx);
+			right->ins(_key, _val, _order, p, idx);
 		}
 		else
 		{
@@ -113,6 +134,8 @@ void TreeNode::ins(int _key, int _val, TreeNode *p, int &idx)
 			right->key = _key;
 			right->val = _val;
 		}
+	}
+	break;
 	}
 }
 
@@ -134,7 +157,7 @@ int TreeNode::getDepth(int &dp)
 	return 0;
 }
 
-void TreeNode::inorder(void(*callback_fun)(int _key, int _val, void* p), void *p)
+void TreeNode::inorder(void(*callback_fun)(bis _key, int _val, void* p), void *p)
 {
 	if (left)
 	{
