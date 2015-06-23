@@ -3,8 +3,6 @@
 
 #include <bitset>
 
-//#define BITSET_SIZE 64
-//typedef std::bitset<BITSET_SIZE> bis;
 typedef unsigned long long bis;
 
 class TreeNode

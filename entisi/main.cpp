@@ -12,6 +12,7 @@ int   binarize(float *isi, int isi_len, int *bin, float dt);
 void  getHcallback(bis key, int val, void *Haddr);
 double getG(int order); // holds G[] and manages its size
 
+#define MAX_ORDER 200
 #define GSIZE 1000000
 double g_G[GSIZE];
 
@@ -44,7 +45,7 @@ int main(int argc, char *argv[])
 	float  tmin = 0.0f;
 	int   *bin;
 	int    bin_len;
-	int    MaxOrder = 500;
+	int    MaxOrder = MAX_ORDER;
 	
 	printf("Input file %s has got the pointer: %d\n",  infile, (int)in);
 	printf("Output file %s has got the pointer: %d\n", outfile, (int)out);
@@ -55,6 +56,11 @@ int main(int argc, char *argv[])
 	if (argc >= 4)
 	{
 		MaxOrder = atoi(argv[3]);
+		if (MaxOrder > MAX_ORDER)
+		{
+			printf("Maximal order can be set only up to %d\n", MAX_ORDER);
+			MaxOrder = MAX_ORDER;
+		}
 	}
 
 	if (argc >= 5)
@@ -81,14 +87,16 @@ int main(int argc, char *argv[])
 		int i = 0;
 		while (i + order < bin_len)
 		{
-			bis word = (bis)0;
+			std::bitset<MAX_ORDER> word(0);
 			for (int j = 0; j < order; j++)
 			{
-				//word = (word << 1) | (bool)bin[i + j];
 				word <<= 1;
 				word  |= bin[i + j];
 			}
-			tree->put(word, 1, order);
+			if (order < 65)
+				tree->put(word.to_ullong(), 1, order);
+			else
+				tree->put((bis)word.hash(), 1, order);
 			N++;
 			i++;
 		}

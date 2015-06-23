@@ -60,20 +60,9 @@ int BinarySearchTree::getDepth(int &dp)
 
 int compare(bis a, bis b, int order)
 {
-	if (a == b) return 0;
-	else
-	{
-#ifdef BITSET_SIZE
-		for (int i = order-1; i >= 0; i--)
-		{
-			if      ( a[i] && !b[i]) return  1; // a > b
-			else if (!a[i] &&  b[i]) return -1; // a < b
-		}
-#else
-		if (a > b) return 1;
-		if (a < b) return -1;
-#endif
-	}
+	if (a > b) return 1;
+	if (a < b) return -1;
+	return 0;
 }
 
 TreeNode::TreeNode()
