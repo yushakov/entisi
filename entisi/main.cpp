@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <memory.h>
+#include <bitset>
 
 void test_tree();
 void test_callback(bis key, int val, void *p);
@@ -10,7 +11,7 @@ void test_callback(bis key, int val, void *p);
 int   read_isi(FILE *in, float **arr, float *sum, float *min);
 int   binarize(float *isi, int isi_len, int *bin, float dt);
 void  getHcallback(bis key, int val, void *Haddr);
-double getG(int order); // holds G[] and manages its size
+double getG(int order);
 
 #define MAX_ORDER 200
 #define GSIZE 1000000
@@ -24,18 +25,19 @@ typedef struct cbParTag
 
 int main(int argc, char *argv[])
 {
-	// isi.txt out.txt [max_order [Tmin]]
-	/**/
 	char infile[500];
 	char outfile[500];
+	printf("Version 1.0\n");
 	if (argc < 2)
 	{
+		printf("Use as following:\n");
+		printf("   entisi.exe isi.txt out.txt [max_order [Tmin]]\n\n  or  \n\n");
 		printf("Input file name: ");
 		scanf("%s", &infile);
 		printf("Output file name: ");
 		scanf("%s", &outfile);
-		sprintf(infile, "isiN5maj.txt");
-		sprintf(outfile, "outMaj.txt");
+		//sprintf(infile, "isiN5maj.txt");
+		//sprintf(outfile, "outMaj.txt");
 	}
 	FILE  *in  = fopen(infile, "r");
 	FILE  *out = fopen(outfile, "w");
@@ -50,8 +52,15 @@ int main(int argc, char *argv[])
 	printf("Input file %s has got the pointer: %d\n",  infile, (int)in);
 	printf("Output file %s has got the pointer: %d\n", outfile, (int)out);
 
+	if (!in || !out) return -1;
+
 	printf("Reading ISI file...\n");
 	isi_len = read_isi(in, &isi, &isi_sum, &isi_min);
+	if (!isi_len)
+	{
+		printf("No ISI in the input file.\n");
+		return -2;
+	}
 	
 	if (argc >= 4)
 	{
@@ -76,6 +85,7 @@ int main(int argc, char *argv[])
 	printf("Binarization...\n");
 	bin_len = binarize(isi, isi_len, bin, tmin);
 	printf("Digit count: %d\n", bin_len);
+	if (!bin_len) return -3;
 	
 	double Hprev = 0.0;
 	double hprev = 0.0;
@@ -125,7 +135,7 @@ int main(int argc, char *argv[])
 		printf("H(%d): %0.12f, h(%d): %0.12f", order, H, order, h);
 		int levels = 0;
 		tree->getDepth(levels);
-		printf("  Nodes: %d, levels: %d, max n_i: %d, N: %d\n", tree->getNodeCount(), levels, pars.max_ni, N);
+		printf("  Tree nodes: %d, levels: %d, max n_i: %d. Analyzed words: %d\n", tree->getNodeCount(), levels, pars.max_ni, N);
 		delete tree;
 		if (breakFlag) break;
 	}
@@ -134,8 +144,7 @@ int main(int argc, char *argv[])
 	delete[] bin;
 	fclose(in);
 	fclose(out);
-	/**/
-
+	
 	//test_tree();
 	
 }
@@ -187,7 +196,6 @@ int binarize(float *isi, int isi_len, int *bin, float dt)
 			bin[bin_idx++] = 0;
 			Tcurr -= dt;
 		}
-		//if (bin_idx < 50) printf("%d", bin[bin_idx - 1]);
 	}
 	return bin_idx;
 }
@@ -195,8 +203,6 @@ int binarize(float *isi, int isi_len, int *bin, float dt)
 void  getHcallback(bis key, int val, void *p)
 {
 	cbPar *par = (cbPar*)p;
-	//double *H = (double*)Haddr;
-	//*H -= (double)val * getG(val);
 	par->H -= (double)val * getG(val);
 	if (val > par->max_ni)
 	{

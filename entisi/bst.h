@@ -1,8 +1,6 @@
 #ifndef BST_H
 #define BST_H
 
-#include <bitset>
-
 typedef unsigned long long bis;
 
 class TreeNode
