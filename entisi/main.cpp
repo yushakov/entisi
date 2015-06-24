@@ -39,6 +39,11 @@ int main(int argc, char *argv[])
 		//sprintf(infile, "isiN5maj.txt");
 		//sprintf(outfile, "outMaj.txt");
 	}
+	else
+	{
+		sprintf(infile, "%s", argv[1]);
+		sprintf(outfile, "%s", argv[2]);
+	}
 	FILE  *in  = fopen(infile, "r");
 	FILE  *out = fopen(outfile, "w");
 	float *isi = 0;
