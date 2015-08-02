@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
 {
 	char infile[500];
 	char outfile[500];
-	printf("Version 1.0\n");
+	printf("Version 1.1\n");
 	if (argc < 2)
 	{
 		printf("Use as following:\n");
@@ -87,14 +87,17 @@ int main(int argc, char *argv[])
 	}
 
 	bin = new int[1 + (int)(isi_sum / tmin)];
-	printf("Binarization...\n");
+	printf("Binarization with time period %f...\n", tmin);
 	bin_len = binarize(isi, isi_len, bin, tmin);
 	printf("Digit count: %d\n", bin_len);
 	if (!bin_len) return -3;
 	
 	double Hprev = 0.0;
 	double hprev = 0.0;
-	printf("Calculation entropies:\n");
+	printf("Calculating entropies:\n");
+	fprintf(out, "# Order, H, h, Different words, All words, max(n_i)\n");
+	fprintf(out, "#-------------------------------------------------------------------------\n");
+
 	for (int order = 1; order <= MaxOrder; order++)
 	{
 		BinarySearchTree *tree = new BinarySearchTree(200);
@@ -136,7 +139,7 @@ int main(int argc, char *argv[])
 			hprev = h;
 		}
 		Hprev = H;
-		fprintf(out, "%0.12f, %0.12f\n", H, h);
+		fprintf(out, "%d, %0.12f, %0.12f, %d, %d, %d\n", order, H, h, tree->getNodeCount(), N, pars.max_ni);
 		printf("H(%d): %0.12f, h(%d): %0.12f", order, H, order, h);
 		int levels = 0;
 		tree->getDepth(levels);
