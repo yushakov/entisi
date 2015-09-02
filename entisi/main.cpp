@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
 {
 	char infile[500];
 	char outfile[500];
-	printf("Version 1.1\n");
+	printf("Version 1.2\n");
 	if (argc < 2)
 	{
 		printf("Use as following:\n");
@@ -85,8 +85,8 @@ int main(int argc, char *argv[])
 	{
 		tmin = 0.9f*isi_min;
 	}
-
-	bin = new int[1 + (int)(isi_sum / tmin)];
+	int blen = 2 + (int)(isi_sum / tmin);
+	bin = new int[2*blen];
 	printf("Binarization with time period %f...\n", tmin);
 	bin_len = binarize(isi, isi_len, bin, tmin);
 	printf("Digit count: %d\n", bin_len);
@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
 		if (order > 1)
 		{
 			h = H - Hprev;
-			if (abs(h - hprev) < 1.e-5)
+			if (order > 50 && abs(h - hprev) < 1.e-5)
 			{
 				breakFlag = true;
 			}
